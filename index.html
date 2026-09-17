@@ -38,12 +38,19 @@ const API="https://oheneba-data.onrender.com";
 const PK="pk_test_c06ed1dabd7972a06ddddeee724fa1fb4d49d07a";
 document.getElementById('bundle').onchange=e=>{document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];};
 function pay(){
- const ph=document.getElementById('phone').value, em=document.getElementById('email').value, nw=document.getElementById('net').value, bv=document.getElementById('bundle').value;
- const [gb,amt]=bv.split('|');
- if(ph.length<10)return alert("Enter valid phone");
- if(!em)return alert("Enter email");
- PaystackPop.setup({key:PK,email:em,amount:Math.round(parseFloat(amt)*100),currency:"GHS",callback:function(r){fetch(API+"/api/pay/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:r.reference,phone:ph,network:nw,bundle:gb,amount:parseFloat(amt)})}).then(x=>x.json()).then(d=>{alert(d.success?"✅ Success! Data to "+ph+" soon":"⚠️ Paid but: "+d.message)}).catch(()=>alert("Paid! Ref: "+r.reference))},onClose:()=>alert("Cancelled")}).openIframe();
+  const ph=document.getElementById('phone').value, em=document.getElementById('email').value, bv=document.getElementById('bundle').value;
+  const [gb,amt]=bv.split('|');
+  if(ph.length<10)return alert("Enter valid phone");
+  if(!em)return alert("Enter email");
+  PaystackPop.setup({
+    key:PK,email:em,amount:Math.round(parseFloat(amt)*100),currency:"GHS",
+    onClose:function(){
+      if(confirm("Payment cancelled. Buy via WhatsApp?")){
+        window.open("https://wa.me/233202964947?text=Hi Oheneaba, payment failed for "+ph+" - I want "+gb+"GB","_blank")
+      }
+    },
+    callback:function(res){
+      fetch(API+"/buy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,network:document.getElementById('net').value,bundle:gb,reference:res.reference})}).then(r=>r.json()).then(d=>alert(d.message||"Success! Data coming"))
+    }
+  }).openIframe();
 }
-</script>
-</body>
-</html>
