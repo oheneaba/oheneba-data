@@ -1,1 +1,49 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oheneba Data - Instant Bundles</title>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#f0f4f9;padding:16px}
+.box{max-width:460px;margin:20px auto;background:#fff;border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+h1{text-align:center;color:#0a58ca}
+.sub{text-align:center;color:#666;margin:6px 0 18px}
+label{font-weight:700;display:block;margin:12px 0 4px}
+input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px}
+button{width:100%;padding:14px;background:#0a58ca;color:#fff;border:none;border-radius:10px;font-size:18px;font-weight:800;margin-top:18px}
+.price{text-align:center;background:#e7f0ff;padding:12px;border-radius:10px;margin:14px 0;font-weight:800;color:#0a58ca;font-size:18px}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>🚀 Oheneba Data</h1>
+<p class="sub">MTN • Telecel • AT Instant</p>
+<label>Network</label>
+<select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
+<label>Phone (beneficiary)</label>
+<input id="phone" placeholder="024XXXXXXX">
+<label>Bundle</label>
+<select id="bundle"><option value="1|5.5">1GB - GH¢5.50</option><option value="2|11">2GB - GH¢11</option><option value="3|16">3GB - GH¢16</option><option value="5|26">5GB - GH¢26</option><option value="10|48">10GB - GH¢48</option></select>
+<div class="price" id="pr">Pay: GH¢5.50</div>
+<label>Your Email</label>
+<input id="email" placeholder="you@gmail.com">
+<button onclick="pay()">Pay with Paystack</button>
+<p style="text-align:center;font-size:12px;color:#888;margin-top:12px">WhatsApp support: 024XXXXXXX<br>Data delivered instantly</p>
+</div>
+<script>
+const API="https://oheneba-data.onrender.com";
+const PK="pk_live_YOUR_KEY_HERE";
+document.getElementById('bundle').onchange=e=>{document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];};
+function pay(){
+ const ph=document.getElementById('phone').value, em=document.getElementById('email').value, nw=document.getElementById('net').value, bv=document.getElementById('bundle').value;
+ const [gb,amt]=bv.split('|');
+ if(ph.length<10)return alert("Enter valid phone");
+ if(!em)return alert("Enter email");
+ PaystackPop.setup({key:PK,email:em,amount:Math.round(parseFloat(amt)*100),currency:"GHS",callback:function(r){fetch(API+"/api/pay/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:r.reference,phone:ph,network:nw,bundle:gb,amount:parseFloat(amt)})}).then(x=>x.json()).then(d=>{alert(d.success?"✅ Success! Data to "+ph+" soon":"⚠️ Paid but: "+d.message)}).catch(()=>alert("Paid! Ref: "+r.reference))},onClose:()=>alert("Cancelled")}).openIframe();
+}
+</script>
+</body>
+</html>
