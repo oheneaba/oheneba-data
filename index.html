@@ -49,13 +49,8 @@ function pay(){
     email:em,
     amount:Math.round(parseFloat(amt)*100),
     currency:"GHS",
-    onClose:function(){if(confirm("Payment cancelled. Buy on WhatsApp?")){window.open("https://wa.me/233202964947?text=Hi Oheneaba I want "+gb+"GB for "+ph,"_blank")}},
+    onClose:function(){if(confirm("Payment cancelled. Buy on WhatsApp instead?")){window.open("https://wa.me/233591234567?text=Hi Oheneaba, I want "+gb+"GB for "+ph,"_blank")}},
     callback:function(res){
       alert("Payment OK: "+res.reference+". Sending data...");
       fetch(API+"/buy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,network:document.getElementById('net').value,bundle:gb,reference:res.reference})}).then(r=>r.json()).then(d=>alert(d.message||"Success!")).catch(e=>alert("Paid but server error. Contact us with ref "+res.reference))
     }
-  }).openIframe();
-}
-</script>
-</body>
-</html>
