@@ -8,19 +8,26 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,sans-serif;background:#f5f7fb;padding:15px}
-.box{max-width:460px;margin:20px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.box{max-width:460px;margin:20px auto;background:#fff;padding:20px;border-radius:14px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
 h1{text-align:center;color:#0a58ca}
 .sub{text-align:center;color:#666;margin:6px 0 15px}
+.fail-box{background:#fff3cd;border:2px dashed #ff9800;padding:12px;border-radius:10px;text-align:center;margin-bottom:14px}
+.fail-box b{color:#d35400}
 label{font-weight:700;display:block;margin:12px 0 5px}
 input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px}
-button{width:100%;padding:14px;background:#0a58ca;color:#fff;border:0;border-radius:8px;font-weight:700;margin-top:15px}
-.price{text-align:center;background:#e7f0ff;padding:10px;border-radius:8px;margin-top:10px}
+button{width:100%;padding:14px;background:#0a58ca;color:#fff;border:0;border-radius:8px;font-weight:700;margin-top:15px;cursor:pointer}
+button.fail-btn{background:#ff9800;margin-top:10px}
+.price{text-align:center;background:#e7f0ff;padding:10px;border-radius:8px;margin-top:10px;font-weight:700}
+.small{text-align:center;margin-top:12px;font-size:13px}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🚀 Oheneba Data</h1>
-<p class="sub">MTN • Telecel • AT Instant</p>
+<p class="sub">MTN • Telecel • AT - Instant & Affordable</p>
+<div class="fail-box">
+<b>😤 Did your code fail? *138* / *110* failed?</b><br>Buy SAME bundle here in 30 secs - instant!
+</div>
 <label>Network</label>
 <select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
 <label>Phone (beneficiary)</label>
@@ -28,31 +35,52 @@ button{width:100%;padding:14px;background:#0a58ca;color:#fff;border:0;border-rad
 <label>Email</label>
 <input id="email" placeholder="you@gmail.com">
 <label>Bundle</label>
-<select id="bundle"><option value="1|5.5">1GB - GH¢5.5</option><option value="2|10">2GB - GH¢10</option><option value="5|22">5GB - GH¢22</option><option value="10|40">10GB - GH¢40</option></select>
+<select id="bundle">
+<option value="1|5.5">1GB - GH¢5.5</option>
+<option value="2|10">2GB - GH¢10</option>
+<option value="3|15">3GB - GH¢15</option>
+<option value="5|22">5GB - GH¢22</option>
+<option value="10|40">10GB - GH¢40</option>
+<option value="15|55">15GB - GH¢55</option>
+<option value="20|65">20GB - GH¢65</option>
+</select>
 <div class="price" id="pr">Pay: GH¢5.5</div>
-<button onclick="pay()">Pay with Paystack</button>
-<p style="text-align:center;margin-top:10px;font-size:13px">Failed? <a href="https://wa.me/233202964947?text=Hi%20Oheneaba%20I%20want%20data">Buy on WhatsApp</a></p>
+<button onclick="pay()">Pay with Paystack (Instant)</button>
+<button class="fail-btn" onclick="buyWA()">Code Failed? Buy on WhatsApp - Fast</button>
+<p class="small">Need help? <a href="https://wa.me/233202964947?text=Hi%20Oheneaba%20my%20code%20failed,%20I%20want%20data">Chat on WhatsApp: 0202964947</a></p>
 </div>
 <script>
 const API="https://oheneba-data.onrender.com";
 const PK="pk_test_c06ed1dabd7972a06ddddeee724fa1fb4d49d07a";
-document.getElementById('bundle').onchange=e=>{document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1]};
-function pay(){
+const WA_NUMBER="233202964947";
+document.getElementById('bundle').onchange=e=>{document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];}
+function getData(){
   const ph=document.getElementById('phone').value.trim();
   const em=document.getElementById('email').value.trim();
   const bv=document.getElementById('bundle').value;
   const [gb,amt]=bv.split('|');
-  if(ph.length<10)return alert("Enter valid phone");
-  if(!em.includes('@'))return alert("Enter valid email");
+  const net=document.getElementById('net').value;
+  return {ph,em,gb,amt,net};
+}
+function buyWA(){
+  const {ph,gb,net}=getData();
+  if(ph.length<10) return alert("Enter your phone number first");
+  const msg=`Hi Oheneaba, my code failed. I want ${gb}GB ${net} for ${ph}. Link: https://oheneaba.github.io/oheneba-data/`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+function pay(){
+  const {ph,em,gb,amt,net}=getData();
+  if(ph.length<10) return alert("Enter valid phone");
+  if(!em.includes('@')) return alert("Enter valid email");
   PaystackPop.setup({
-    key:PK,
-    email:em,
-    amount:Math.round(parseFloat(amt)*100),
-    currency:"GHS",
-    onClose:function(){if(confirm("Payment cancelled. Buy on WhatsApp?")){window.open("https://wa.me/233202964947?text=Hi Oheneaba I want "+gb+"GB for "+ph,"_blank")}},
+    key:PK,email:em,amount:Math.round(parseFloat(amt)*100),currency:"GHS",
+    metadata:{custom_fields:[{display_name:"Phone",variable_name:"phone",value:ph},{display_name:"Bundle",variable_name:"bundle",value:gb+"GB "+net}]},
+    onClose:function(){if(confirm("Payment cancelled. Code failed? Buy on WhatsApp instead?")){buyWA();}},
     callback:function(res){
       alert("Payment OK: "+res.reference+". Sending data...");
-      fetch(API+"/buy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,network:document.getElementById('net').value,bundle:gb,reference:res.reference})}).then(r=>r.json()).then(d=>alert(d.message||"Success!")).catch(e=>alert("Paid but server error. Contact us with ref "+res.reference))
+      fetch(API+"/buy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,network:net,bundle:gb,reference:res.reference})})
+     .then(r=>r.json()).then(d=>alert(d.message||"Success! Bundle will arrive soon."))
+     .catch(e=>alert("Paid but server error. Send ref "+res.reference+" to WhatsApp: "+WA_NUMBER))
     }
   }).openIframe();
 }
