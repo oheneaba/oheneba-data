@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Oheneba Data - Paystack + Airtime</title>
-<script src="https://js.paystack.co/v1/inline.js"></script>
+<title>Oheneba Data - Fixed Buttons</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui;background:#f5f7fb;padding:15px}
@@ -12,81 +11,79 @@ body{font-family:system-ui;background:#f5f7fb;padding:15px}
 h1{text-align:center;color:#0a58ca}
 .sub{text-align:center;color:#666;margin:8px 0 15px}
 label{font-weight:700;display:block;margin:12px 0 5px}
-input,select{width:100%;padding:13px;border:2px solid #ddd;border-radius:9px;font-size:15px}
-button{width:100%;padding:14px;border:0;border-radius:9px;font-weight:800;margin-top:10px;cursor:pointer}
-.paystack{background:#0a58ca;color:#fff}
-.airtime{background:#ff9800;color:#fff}
-.price{text-align:center;background:#e7f0ff;padding:11px;border-radius:8px;margin-top:12px;font-weight:800;color:#0a58ca}
-.airtime-box{background:#fff8e1;border:2px dashed #ff9800;padding:12px;border-radius:10px;margin-top:12px;text-align:center;font-size:13px}
+input,select{width:100%;padding:13px;border:2px solid #ddd;border-radius:9px;font-size:16px}
+button{width:100%;padding:15px;border:0;border-radius:10px;font-weight:800;margin-top:12px;cursor:pointer;color:#fff;font-size:16px;display:block}
+.momo{background:#0a58ca}
+.airtime{background:#ff9800}
+.price{text-align:center;background:#e7f0ff;padding:12px;border-radius:8px;margin-top:12px;font-weight:800;color:#0a58ca;font-size:18px}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🚀 Oheneba Data</h1>
-<p class="sub">MTN • Telecel • AT - MoMo, Card or Airtime</p>
+<p class="sub">MTN • Telecel • AT - Instant</p>
 
 <label>Network</label>
-<select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
+<select id="net"><option value="MTN">MTN</option><option value="Telecel">Telecel</option><option value="AT">AT</option></select>
 
-<label>Phone (beneficiary)</label>
-<input id="phone" placeholder="024XXXXXXX">
-
-<label>Email (for Paystack)</label>
-<input id="email" placeholder="you@gmail.com">
+<label>Beneficiary Phone</label>
+<input id="phone" type="tel" placeholder="024XXXXXXX">
 
 <label>Bundle</label>
 <select id="bundle">
-<option value="1|5.5">1GB - GH¢5.5</option>
-<option value="2|10">2GB - GH¢10</option>
-<option value="3|15">3GB - GH¢15</option>
-<option value="5|22">5GB - GH¢22 - Hot 🔥</option>
-<option value="10|40">10GB - GH¢40</option>
-<option value="15|55">15GB - GH¢55</option>
-<option value="20|65">20GB - GH¢65</option>
+<option value="1GB - GH¢5.5">1GB - GH¢5.5</option>
+<option value="2GB - GH¢10">2GB - GH¢10</option>
+<option value="3GB - GH¢15">3GB - GH¢15</option>
+<option value="5GB - GH¢22">5GB - GH¢22 - Hot 🔥</option>
+<option value="10GB - GH¢40">10GB - GH¢40</option>
+<option value="15GB - GH¢55">15GB - GH¢55</option>
+<option value="20GB - GH¢65">20GB - GH¢65</option>
 </select>
 
-<div class="price" id="pr">Pay: GH¢5.5</div>
+<div class="price" id="pr">Amount: GH¢5.5</div>
 
-<button class="paystack" onclick="pay()">💳 Pay with MoMo / Card / Bank (Paystack)</button>
-<button class="airtime" onclick="payAirtime()">📱 Buy with Airtime - Transfer Airtime to Us</button>
+<!-- FIXED BUTTONS - NOW WITH ID -->
+<button id="btnMomo" class="momo">💰 Pay with MoMo / Card / Bank (Paystack)</button>
+<button id="btnAirtime" class="airtime">📱 Buy with Airtime - Transfer Airtime to Us</button>
 
-<div class="airtime-box">
-<b>How to Pay with Airtime:</b><br>
-MTN: Dial *138* amount * 0202964947 #<br>
-Or *124*pin*amount*0202964947# (for some)<br>
-Best: Transfer airtime to <b>0202964947</b> then click button above
-</div>
-
-<p style="text-align:center;font-size:12px;margin-top:12px">WhatsApp: 0202964947 - Instant delivery after payment</p>
+<p style="text-align:center;font-size:12px;margin-top:12px;color:#555">Pay to: MoMo 0202964947 • Airtime 0202964947<br>Clicking will open WhatsApp</p>
 </div>
 
 <script>
-const PK = "pk_live_YOUR_LIVE_KEY_HERE";
-const WA_NUMBER = "233202964947";
+// Update price
+document.getElementById('bundle').addEventListener('change', function(){
+  let val = this.value;
+  let price = val.split('GH¢')[1];
+  document.getElementById('pr').innerText = "Amount: GH¢" + price;
+});
 
-document.getElementById('bundle').onchange=e=>{
-  document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];
+function getPhone(){
+  let p = document.getElementById('phone').value.trim();
+  if(p.length < 10){ alert("Please enter beneficiary phone first e.g. 024XXXXXXX"); return null; }
+  return p;
 }
 
-function getData(){
-  const ph=document.getElementById('phone').value.trim();
-  const em=document.getElementById('email').value.trim();
-  const bv=document.getElementById('bundle').value;
-  const [gb,amt]=bv.split('|');
-  const net=document.getElementById('net').value;
-  return {ph,em,gb,amt,net};
-}
+document.getElementById('btnMomo').addEventListener('click', function(){
+  let phone = getPhone();
+  if(!phone) return;
+  let net = document.getElementById('net').value;
+  let bun = document.getElementById('bundle').value;
+  let msg = `Hello Oheneba, I want to buy ${bun} (${net}) for ${phone}. I want to pay with MoMo. My MoMo number is: `;
+  let url = "https://wa.me/233202964947?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+});
 
-function pay(){
-  const {ph,em,gb,amt,net}=getData();
-  if(ph.length<10) return alert("Enter valid phone");
-  if(!em.includes('@')) return alert("Enter valid email");
-  if(PK.includes("YOUR_LIVE_KEY")) return alert("Replace pk_live_YOUR_LIVE_KEY_HERE with your real Paystack LIVE key in code");
-
-  PaystackPop.setup({
-    key: PK,
-    email: em,
-    amount: Math.round(parseFloat(amt)*100),
-    currency: "GHS",
-    callback: function(res){
-      const
+document.getElementById('btnAirtime').addEventListener('click', function(){
+  let phone = getPhone();
+  if(!phone) return;
+  let net = document.getElementById('net').value;
+  let bun = document.getElementById('bundle').value;
+  let msg = `Hello Oheneba, I want to BUY WITH AIRTIME. I want ${bun} (${net}) for ${phone}. I will transfer airtime to 0202964947 now. Amount: `;
+  let url = "https://wa.me/233202964947?text=" + encodeURIComponent(msg);
+  // Instruction for airtime
+  alert("To Pay with Airtime:\n\nMTN: Dial *198*Amount*0202964947*PIN#\nOr use MyMTN App > Airtime Transfer > 0202964947\n\nAfter transfer, click OK to send proof on WhatsApp");
+  window.open(url, "_blank");
+});
+</script>
+</body>
+</html>
