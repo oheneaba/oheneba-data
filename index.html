@@ -1,97 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Oheneba Data - Cheaper Than Code!</title>
-<script src="https://js.paystack.co/v1/inline.js"></script>
+<title>Oheneba Data - Working</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,sans-serif;background:#f5f7fb;padding:15px}
-.box{max-width:460px;margin:20px auto;background:#fff;padding:20px;border-radius:14px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
-h1{text-align:center;color:#0a58ca}
-.sub{text-align:center;color:#666;margin:6px 0 15px}
-.fail-box{background:#fff8c4;border:2px dashed #ff9800;padding:13px;border-radius:10px;text-align:center;margin-bottom:14px;color:#7a4a00}
-.fail-box b{color:#d35400;font-size:16px}
-label{font-weight:700;display:block;margin:12px 0 5px}
-input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:16px}
-button{width:100%;padding:14px;background:#0a58ca;color:#fff;border:0;border-radius:8px;font-weight:700;margin-top:15px;cursor:pointer;font-size:16px}
-button.fail-btn{background:#ff9800;margin-top:10px}
-.price{text-align:center;background:#e7f0ff;padding:10px;border-radius:8px;margin-top:10px;font-weight:700;color:#0a58ca}
-.small{text-align:center;margin-top:12px;font-size:13px}
-.cheap-badge{background:#00c853;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px}
+body{font-family:sans-serif;background:#f0f8ff;padding:15px}
+.box{max-width:400px;margin:auto;background:#fff;padding:20px;border-radius:15px;box-shadow:0 4px 10px #0002}
+h1{color:#007bff;text-align:center}
+select,input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc}
+button{background:#007bff;color:#fff;font-weight:bold;border:0}
 </style>
 </head>
 <body>
 <div class="box">
-<h1>🚀 Oheneba Data</h1>
-<p class="sub">MTN • Telecel • AT - Cheaper Than Code!</p>
-
-<div class="fail-box">
-<b>😤 MTN *138* / Telecel *110* Too Expensive or Failed?</b><br>
-Buy SAME bundle here <b>CHEAPER</b> & Instant in 30 secs!<br>
-<span style="font-size:12px">No expiry | Works for all networks</span>
-</div>
-
+<h1>Oheneba Data 🚀</h1>
+<p style="text-align:center">Instant MTN • Telecel • AT</p>
 <label>Network</label>
 <select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
-
-<label>Phone (beneficiary)</label>
+<label>Phone</label>
 <input id="phone" placeholder="024XXXXXXX">
-
-<label>Email (for receipt)</label>
-<input id="email" placeholder="you@gmail.com">
-
-<label>Bundle - CHEAP PRICE!</label>
-<select id="bundle">
-<option value="1|5.5">1GB - GH¢5.5</option>
-<option value="2|10">2GB - GH¢10</option>
-<option value="3|15">3GB - GH¢15 - NEW!</option>
-<option value="5|22">5GB - GH¢22 - Hot 🔥</option>
-<option value="10|40">10GB - GH¢40</option>
-<option value="15|55">15GB - GH¢55</option>
-<option value="20|65">20GB - GH¢65 - Best Deal 💰</option>
+<label>Bundle</label>
+<select id="bun">
+<option>1GB - GH¢5.5</option>
+<option>2GB - GH¢10</option>
+<option>3GB - GH¢15</option>
+<option>5GB - GH¢22</option>
+<option>10GB - GH¢40</option>
+<option>15GB - GH¢55</option>
+<option>20GB - GH¢65</option>
 </select>
-
-<div class="price" id="pr">Pay: GH¢5.5</div>
-<button onclick="pay()">Pay with MoMo (Paystack) - Instant</button>
-<button class="fail-btn" onclick="buyWA()">Code Expensive? Buy on WhatsApp</button>
-
-<p class="small">Need help? <a href="https://wa.me/233202964947?text=Hi%20Oheneaba%20your%20code%20bundles%20are%20expensive,%20I%20want%20cheap%20bundle%20from%20your%20site">Chat on WhatsApp: 0202964947</a><br>https://oheneaba.github.io/oheneba-data/</p>
+<button onclick="order()">Order on WhatsApp - 0202964947</button>
+<p style="text-align:center;font-size:12px;margin-top:10px">We deliver in 2 mins after MoMo</p>
 </div>
-
 <script>
-const API="https://oheneba-data.onrender.com";
-const PK="pk_test_c06ed1dabd7972a06ddddeee724fa1fb4d49d07a";
-const WA_NUMBER="233202964947";
-
-document.getElementById('bundle').onchange=e=>{
-  document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];
+function order(){
+ let ph=document.getElementById('phone').value;
+ let net=document.getElementById('net').value;
+ let bun=document.getElementById('bun').value;
+ if(ph.length<10){alert('Enter phone');return}
+ let msg=`Hello Oheneba, I want ${bun} ${net} for ${ph}. I will pay now.`;
+ window.open(`https://wa.me/233202964947?text=${encodeURIComponent(msg)}`);
 }
-
-function getData(){
-  const ph=document.getElementById('phone').value.trim();
-  const em=document.getElementById('email').value.trim();
-  const bv=document.getElementById('bundle').value;
-  const [gb,amt]=bv.split('|');
-  const net=document.getElementById('net').value;
-  return {ph,em,gb,amt,net};
-}
-
-function buyWA(){
-  const {ph,gb,net}=getData();
-  if(ph.length<10) return alert("Enter phone number first");
-  const msg=`Hi Oheneaba, MTN *138* code is too expensive. I want cheap ${gb}GB ${net} for ${ph} from https://oheneaba.github.io/oheneba-data/`;
-  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,"_blank");
-}
-
-function pay(){
-  const {ph,em,gb,amt,net}=getData();
-  if(ph.length<10) return alert("Enter valid phone");
-  if(!em.includes('@')) return alert("Enter valid email");
-  PaystackPop.setup({
-    key:PK,
-    email:em,
-    amount:Math.round(parseFloat(amt)*100),
-    currency:"GHS",
-    metadata:{custom_fields:[{display
+</script>
+</body>
+</html>
