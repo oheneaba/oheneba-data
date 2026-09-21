@@ -1,47 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Oheneba Data - Working</title>
+<title>Oheneba Data - Paystack + Airtime</title>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
-body{font-family:sans-serif;background:#f0f8ff;padding:15px}
-.box{max-width:400px;margin:auto;background:#fff;padding:20px;border-radius:15px;box-shadow:0 4px 10px #0002}
-h1{color:#007bff;text-align:center}
-select,input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc}
-button{background:#007bff;color:#fff;font-weight:bold;border:0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui;background:#f5f7fb;padding:15px}
+.box{max-width:460px;margin:20px auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
+h1{text-align:center;color:#0a58ca}
+.sub{text-align:center;color:#666;margin:8px 0 15px}
+label{font-weight:700;display:block;margin:12px 0 5px}
+input,select{width:100%;padding:13px;border:2px solid #ddd;border-radius:9px;font-size:15px}
+button{width:100%;padding:14px;border:0;border-radius:9px;font-weight:800;margin-top:10px;cursor:pointer}
+.paystack{background:#0a58ca;color:#fff}
+.airtime{background:#ff9800;color:#fff}
+.price{text-align:center;background:#e7f0ff;padding:11px;border-radius:8px;margin-top:12px;font-weight:800;color:#0a58ca}
+.airtime-box{background:#fff8e1;border:2px dashed #ff9800;padding:12px;border-radius:10px;margin-top:12px;text-align:center;font-size:13px}
 </style>
 </head>
 <body>
 <div class="box">
-<h1>Oheneba Data 🚀</h1>
-<p style="text-align:center">Instant MTN • Telecel • AT</p>
+<h1>🚀 Oheneba Data</h1>
+<p class="sub">MTN • Telecel • AT - MoMo, Card or Airtime</p>
+
 <label>Network</label>
 <select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
-<label>Phone</label>
+
+<label>Phone (beneficiary)</label>
 <input id="phone" placeholder="024XXXXXXX">
+
+<label>Email (for Paystack)</label>
+<input id="email" placeholder="you@gmail.com">
+
 <label>Bundle</label>
-<select id="bun">
-<option>1GB - GH¢5.5</option>
-<option>2GB - GH¢10</option>
-<option>3GB - GH¢15</option>
-<option>5GB - GH¢22</option>
-<option>10GB - GH¢40</option>
-<option>15GB - GH¢55</option>
-<option>20GB - GH¢65</option>
+<select id="bundle">
+<option value="1|5.5">1GB - GH¢5.5</option>
+<option value="2|10">2GB - GH¢10</option>
+<option value="3|15">3GB - GH¢15</option>
+<option value="5|22">5GB - GH¢22 - Hot 🔥</option>
+<option value="10|40">10GB - GH¢40</option>
+<option value="15|55">15GB - GH¢55</option>
+<option value="20|65">20GB - GH¢65</option>
 </select>
-<button onclick="order()">Order on WhatsApp - 0202964947</button>
-<p style="text-align:center;font-size:12px;margin-top:10px">We deliver in 2 mins after MoMo</p>
+
+<div class="price" id="pr">Pay: GH¢5.5</div>
+
+<button class="paystack" onclick="pay()">💳 Pay with MoMo / Card / Bank (Paystack)</button>
+<button class="airtime" onclick="payAirtime()">📱 Buy with Airtime - Transfer Airtime to Us</button>
+
+<div class="airtime-box">
+<b>How to Pay with Airtime:</b><br>
+MTN: Dial *138* amount * 0202964947 #<br>
+Or *124*pin*amount*0202964947# (for some)<br>
+Best: Transfer airtime to <b>0202964947</b> then click button above
 </div>
+
+<p style="text-align:center;font-size:12px;margin-top:12px">WhatsApp: 0202964947 - Instant delivery after payment</p>
+</div>
+
 <script>
-function order(){
- let ph=document.getElementById('phone').value;
- let net=document.getElementById('net').value;
- let bun=document.getElementById('bun').value;
- if(ph.length<10){alert('Enter phone');return}
- let msg=`Hello Oheneba, I want ${bun} ${net} for ${ph}. I will pay now.`;
- window.open(`https://wa.me/233202964947?text=${encodeURIComponent(msg)}`);
+const PK = "pk_live_YOUR_LIVE_KEY_HERE";
+const WA_NUMBER = "233202964947";
+
+document.getElementById('bundle').onchange=e=>{
+  document.getElementById('pr').innerText="Pay: GH¢"+e.target.value.split('|')[1];
 }
-</script>
-</body>
-</html>
+
+function getData(){
+  const ph=document.getElementById('phone').value.trim();
+  const em=document.getElementById('email').value.trim();
+  const bv=document.getElementById('bundle').value;
+  const [gb,amt]=bv.split('|');
+  const net=document.getElementById('net').value;
+  return {ph,em,gb,amt,net};
+}
+
+function pay(){
+  const {ph,em,gb,amt,net}=getData();
+  if(ph.length<10) return alert("Enter valid phone");
+  if(!em.includes('@')) return alert("Enter valid email");
+  if(PK.includes("YOUR_LIVE_KEY")) return alert("Replace pk_live_YOUR_LIVE_KEY_HERE with your real Paystack LIVE key in code");
+
+  PaystackPop.setup({
+    key: PK,
+    email: em,
+    amount: Math.round(parseFloat(amt)*100),
+    currency: "GHS",
+    callback: function(res){
+      const
