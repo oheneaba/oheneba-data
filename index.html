@@ -2,93 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Oheneba Data - Paystack Test + Airtime</title>
-<script src="https://js.paystack.co/v1/inline.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oheneba Data - Auto Data with Name Check</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui;background:#f5f7fb;padding:15px}
-.box{max-width:460px;margin:20px auto;background:#fff;padding:22px;border-radius:16px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
-h1{text-align:center;color:#0a58ca}
-.sub{text-align:center;color:#666;margin:8px 0 15px}
-label{font-weight:700;display:block;margin:12px 0 5px}
-input,select{width:100%;padding:13px;border:2px solid #ddd;border-radius:9px;font-size:16px}
-button{width:100%;padding:15px;border:0;border-radius:10px;font-weight:800;margin-top:12px;cursor:pointer;color:#fff;font-size:16px}
-.momo{background:#0a58ca}
-.airtime{background:#ff9800}
-.price{text-align:center;background:#e7f0ff;padding:12px;border-radius:8px;margin-top:12px;font-weight:800;color:#0a58ca;font-size:18px}
+body{font-family:Arial;background:#ffeb00;margin:0;padding:10px}
+.box{max-width:460px;margin:auto;background:#fff;padding:22px;border-radius:18px;box-shadow:0 5px 20px rgba(0,0,0,.25)}
+h1{text-align:center;margin:0}
+input,select,button{width:100%;padding:15px;margin:10px 0;border-radius:12px;border:1.5px solid #ddd;font-size:16px;box-sizing:border-box}
+button{background:#000;color:#ffeb00;font-weight:bold;border:none}
+#verify{padding:12px;border-radius:10px;display:none;font-weight:bold;text-align:left}
+.ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.bad{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🚀 Oheneba Data</h1>
-<p class="sub">Pay with MoMo / Card (Paystack Test) or Airtime</p>
+<p style="text-align:center">Cheap Data - Cheaper than *138#</p>
 
-<label>Network</label>
-<select id="net"><option>MTN</option><option>Telecel</option><option>AT</option></select>
-
-<label>Beneficiary Phone</label>
-<input id="phone" type="tel" placeholder="024XXXXXXX">
-
-<label>Email (for Paystack receipt)</label>
-<input id="email" type="email" placeholder="you@gmail.com">
-
-<label>Bundle</label>
-<select id="bundle">
-<option value="1|5.5">1GB - GH¢5.5</option>
-<option value="2|10">2GB - GH¢10</option>
-<option value="3|15">3GB - GH¢15</option>
-<option value="5|22">5GB - GH¢22 - Hot 🔥</option>
-<option value="10|40">10GB - GH¢40</option>
-<option value="15|55">15GB - GH¢55</option>
-<option value="20|65">20GB - GH¢65</option>
+<select id="network">
+<option value="MTN">MTN</option>
+<option value="TELECEL">Telecel</option>
+<option value="AT">AirtelTigo</option>
 </select>
 
-<div class="price" id="pr">Pay: GH¢5.5</div>
-
-<button id="btnPaystack" class="momo">💳 Pay with MoMo / Card / Bank (Paystack)</button>
-<button id="btnAirtime" class="airtime">📱 Buy with Airtime - Transfer to 0202964947</button>
-</div>
-
-<script>
-// >>> PUT YOUR TEST KEY HERE <<<
-const PAYSTACK_PUBLIC_KEY = "pk_test_c06ed1dabd7972a06ddddeee724fa1fb4d49d07a";
-// Replace with your own: pk_test_xxxxxxxx from Paystack Dashboard
-
-const WA_NUMBER = "233202964947";
-
-document.getElementById('bundle').addEventListener('change', e=>{
-  let amt = e.target.value.split('|')[1];
-  document.getElementById('pr').innerText = "Pay: GH¢" + amt;
-});
-
-function getData(){
-  let phone = document.getElementById('phone').value.trim();
-  let email = document.getElementById('email').value.trim();
-  let val = document.getElementById('bundle').value;
-  let [gb, amt] = val.split('|');
-  let net = document.getElementById('net').value;
-  if(phone.length < 10){ alert("Enter beneficiary phone"); return null; }
-  if(!email.includes('@')){ alert("Enter valid email for receipt"); return null; }
-  return {phone, email, gb, amt, net};
-}
-
-// PAYSTACK BUTTON - NOW FIXED
-document.getElementById('btnPaystack').addEventListener('click', function(){
-  let data = getData();
-  if(!data) return;
-
-  if(typeof PaystackPop === 'undefined'){
-    alert("Paystack blocked. Opening WhatsApp instead. Install Chrome and disable adblocker.");
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`I want ${data.gb}GB ${data.net} for ${data.phone}`)}`, "_blank");
-    return;
-  }
-
-  let handler = PaystackPop.setup({
-    key: PAYSTACK_PUBLIC_KEY,
-    email: data.email,
-    amount: Math.round(parseFloat(data.amt) * 100),
-    currency: "GHS",
-    metadata: { custom_fields: [{display_name: "Phone", variable_name: "phone", value: data.phone}] },
-    callback: function(res){
-      alert("✅
+<select id="bundle">
+<option value="1">1GB - GH¢5 (MTN)</option>
+<option value="2" selected>2GB - GH¢10 (MTN)</option>
+<option value="3">3GB - GH¢14</option>
+<option value="5">5GB - GH¢22</option>
