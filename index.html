@@ -9,9 +9,7 @@ body{background:#ffeb00;font-family:Arial;padding:15px}
 .card{max-width:420px;margin:auto;background:white;padding:20px;border-radius:15px}
 input,select,button{width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:16px;box-sizing:border-box}
 button{background:black;color:yellow;font-weight:bold}
-#verify{padding:10px;border-radius:8px;display:none;margin:8px 0;font-weight:bold}
-.ok{background:#d4edda;color:#155724}
-.bad{background:#fff3cd;color:#856404}
+#verify{padding:10px;border-radius:8px;display:block;margin:8px 0;font-weight:bold;background:#d4edda;color:#155724}
 </style>
 </head>
 <body>
@@ -19,47 +17,42 @@ button{background:black;color:yellow;font-weight:bold}
 <h2 style="text-align:center">🚀 Oheneba Data</h2>
 <select id="network"><option>MTN</option><option>TELECEL</option><option>AT</option></select>
 <select id="bundle"><option value="1">1GB - 5 GHS</option><option value="2" selected>2GB - 10 GHS</option><option value="3">3GB - 14 GHS</option></select>
-<input id="phone" placeholder="0591766185" maxlength="10">
-<div id="verify"></div>
-<button id="btn">Enter 10-digit number</button>
-<p id="msg" style="text-align:center"></p>
+<input id="phone" placeholder="0591766185" maxlength="10" type="tel">
+<div id="verify">Enter number - auto network detect</div>
+<button id="btn">Buy Now</button>
+<p id="msg" style="text-align:center;font-weight:bold"></p>
 </div>
 <script>
 const DATASIKA_API_KEY = "Bearer dsk_live_your_key_here
 # — or —
 x-api-key: dsk_live_your_key_here";
-const PAYSTACK_SECRET = "PASTE_YOUR_PAYSTACK_SK_HERE";
 const DATASIKA_URL = "https://datasika.com/api/v1/data/purchase";
 const phone=document.getElementById('phone');
 const verify=document.getElementById('verify');
 const btn=document.getElementById('btn');
 const msg=document.getElementById('msg');
 const net=document.getElementById('network');
-let vName="";
+
 phone.oninput=()=>{
  let p=phone.value.trim();
- if(p.length==10) checkName(p);
- else{verify.style.display='none';btn.innerText='Enter 10-digit number'}
+ if(p.startsWith('059')||p.startsWith('024')||p.startsWith('054')||p.startsWith('055')){net.value='MTN';verify.innerText='📱 '+p+' - MTN detected - Ready to buy';}
+ else if(p.startsWith('020')||p.startsWith('050')){net.value='TELECEL';verify.innerText='📱 '+p+' - Telecel detected - Ready to buy';}
+ else verify.innerText='📱 '+p+' - '+net.value;
+ if(p.length==10){btn.innerText='Buy '+document.getElementById('bundle').value+'GB for '+p;btn.disabled=false;}
 };
-async function checkName(p){
- verify.style.display='block';verify.className='bad';verify.innerText='⏳ Verifying '+p+'...';btn.disabled=true;
- try{
-  let r=await fetch('https://api.paystack.co/transferrecipient',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+PAYSTACK_SECRET},body:JSON.stringify({type:'mobile_money',name:'Check',account_number:p,bank_code:'MTN',currency:'GHS'})});
-  let d=await r.json();let name=d.data?.name||d.data?.details?.account_name;
-  if(name){vName=name;verify.className='ok';verify.innerHTML='✅ Name: '+name+'<br>📱 '+p;btn.disabled=false;btn.innerText='Buy for '+name;return;}
-  throw '';
- }catch(e){vName='Not Verified';verify.className='bad';verify.innerText='⚠️ Cannot get name for '+p+'. Check number!';btn.disabled=false;btn.innerText='Buy Anyway';}
-}
+
 btn.onclick=async()=>{
  let p=phone.value.trim();let b=document.getElementById('bundle').value;
- if(p.length!=10)return alert('Enter number');
- msg.innerText='Sending...';
+ if(p.length!=10)return alert('Enter 10 digit number');
+ if(DATASIKA_API_KEY.includes('PASTE')){alert('You have not pasted your Datasika API Key! Go to line 31 and replace PASTE_YOUR_DATASIKA_KEY_HERE');return;}
+ msg.innerText='⏳ Sending '+b+'GB to '+p+' via Datasika...';
  try{
   let r=await fetch(DATASIKA_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_key:DATASIKA_API_KEY,network:net.value,phone:p,plan_id:parseInt(b),reference:'OHEN-'+Date.now()})});
   let d=await r.json();
-  if(d.status=='success'||d.success)msg.innerText='✅ Sent to '+p+' ('+vName+')';
-  else msg.innerText='❌ '+ (d.message||JSON.stringify(d));
- }catch(e){msg.innerText='❌ Error '+e.message}
+  console.log(d);
+  if(d.status=='success'||d.success||d.code==200){msg.innerText='✅ SUCCESS! '+b+'GB sent to '+p;msg.style.color='green';}
+  else {msg.innerText='❌ Failed: '+(d.message||JSON.stringify(d));msg.style.color='red';}
+ }catch(e){msg.innerText='❌ Error: '+e.message; console.log(e)}
 };
 </script>
 </body>
