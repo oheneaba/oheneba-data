@@ -1,33 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oheneba Data - Auto Data with Name Check</title>
-<style>
-body{font-family:Arial;background:#ffeb00;margin:0;padding:10px}
-.box{max-width:460px;margin:auto;background:#fff;padding:22px;border-radius:18px;box-shadow:0 5px 20px rgba(0,0,0,.25)}
-h1{text-align:center;margin:0}
-input,select,button{width:100%;padding:15px;margin:10px 0;border-radius:12px;border:1.5px solid #ddd;font-size:16px;box-sizing:border-box}
-button{background:#000;color:#ffeb00;font-weight:bold;border:none}
-#verify{padding:12px;border-radius:10px;display:none;font-weight:bold;text-align:left}
-.ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-.bad{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
-</style>
-</head>
-<body>
-<div class="box">
-<h1>🚀 Oheneba Data</h1>
-<p style="text-align:center">Cheap Data - Cheaper than *138#</p>
-
-<select id="network">
-<option value="MTN">MTN</option>
-<option value="TELECEL">Telecel</option>
-<option value="AT">AirtelTigo</option>
-</select>
-
-<select id="bundle">
-<option value="1">1GB - GH¢5 (MTN)</option>
-<option value="2" selected>2GB - GH¢10 (MTN)</option>
-<option value="3">3GB - GH¢14</option>
-<option value="5">5GB - GH¢22</option>
+<input type="tel" id="phone" placeholder="0591766185" maxlength="10">
+<div id="verify"></div>
+<button id="btn">Enter number to verify name</button>
+<p id="msg" style="text-align:center;font-weight:bold"></p>
+</div>
+<script>
+// ===== PASTE KEYS HERE - THIS IS WHERE YOU PUT API KEY =====
+const DATASIKA_API_KEY = "PASTE_YOUR_DATASIKA_API_KEY_HERE";
+const PAYSTACK_SECRET_KEY = "PASTE_YOUR_PAYSTACK_SECRET_KEY_HERE";
+const DATASIKA_URL = "https://datasika.com/api/v1/data/purchase";
+// ================================================
+const phoneInput=document.getElementById('phone');
+const verifyDiv=document.getElementById('verify');
+const btn=document.getElementById('btn');
+const msg=document.getElementById('msg');
+const networkSel=document.getElementById('network');
+let verifiedName="";
+phoneInput.addEventListener('input',()=>{
+  const p=phoneInput.value.trim();
+  if(p.startsWith('059')||p.startsWith('024')||p.startsWith('054')||p.startsWith('055')) networkSel.value='MTN';
+  if(p.length==10) doVerify(p);
+  else {verifyDiv.style.display='none'; btn.innerText='Enter number to verify name'; btn.disabled=true;}
+});
+async function doVerify(phone){
+  verifyDiv.style.display='block'; verifyDiv.className='bad'; verifyDiv.innerHTML='⏳ Verifying name for '+phone+'...'; btn.disabled=true;
+  try{
+    const res=await fetch('https://api.paystack.co/transferrecipient',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+PAYSTACK_SECRET_KEY},body:JSON.stringify({type:'mobile_money',name:'Verify',account_number:phone,bank_code:networkSel.value=='MTN'?'MTN':networkSel.value=='TELECEL'?'VOD':'ATL',currency:'GHS'})});
+    const data=await res.json(); const name=data.data?.name||data.data?.details?.account_name;
+    if(name){verifiedName=name; verifyDiv.className='ok'; verifyDiv.innerHTML=`✅ Name: ${name}<br>📱 ${phone}<br>📶 ${networkSel.value}`; btn.disabled=false; btn.innerText=`Buy for ${name}`; return;}
+    else throw new Error('no name');
+  }catch(e){verifyDiv.className='bad'; verifyDiv.innerHTML=`⚠️ Could not get name for ${phone}. Double-check!`; verifiedName='Not Verified'; btn.disabled=false; btn.innerText='Buy Anyway';}
+}
+btn.addEventListener('click',async()=>{
+  const phone=phoneInput.value.trim(); const network=networkSel.value; const plan_id=document.getElementById('bundle').value;
+  if(phone.length!=10){alert('Enter 10 digit number'); return;}
+  btn.disabled=true; msg.innerText='⏳ Sending to '+phone+' ('+verifiedName+')...';
+  try{
+    const res=await fetch(DATASIKA_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_key:DATASIKA_API_KEY,network:network,phone:phone,plan_id:parseInt(plan_id),reference:'OHEN-'+Date.now()})});
+    const data=await res.json();
+    if(data.status=='success'||data.success){msg.innerHTML=`✅ SUCCESS! Sent to ${phone}<br>Name: ${verifiedName}`; btn.innerText='✅ Sent!';}
+    else {msg.innerText='❌ Failed: '+(data.message||JSON.stringify(data)); btn.disabled=false;}
+  }catch(err){msg.innerText='❌ Error: '+err.message; btn.disabled=false;}
+});
+</script>
+</body>
+</html>
