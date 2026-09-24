@@ -2,66 +2,34 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oheneba Data - Developer Console</title>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#0d0e12;color:white;padding:12px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
-.logo{font-weight:bold;display:flex;align-items:center;gap:8px}
-.badge{background:#2a2110;color:#f5c518;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:bold;border:1px solid #f5c518}
-.card{background:#1a1c23;border-radius:20px;padding:18px;margin:14px 0;border:1px solid #2a2d38}
-.card2{background:linear-gradient(135deg,#1a1c23,#1f2218)}
-.small{font-size:12px;color:#8b8e99;letter-spacing:1px;font-weight:bold}
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#0d0e12;color:white;padding:12px;padding-bottom:80px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
+.logo{font-weight:bold;display:flex;align-items:center;gap:6px;font-size:18px}
+.badge{background:#2a2110;color:#f5c518;padding:3px 8px;border-radius:10px;font-size:11px;margin-left:8px}
+.card{background:#1a1c23;border-radius:20px;padding:18px;margin-top:14px}
+.card2{background:linear-gradient(135deg,#1a1c23,#2a2110);border:1px solid #f5c51833}
+.small{font-size:12px;color:#8b8e99;letter-spacing:0.5px}
 .big{font-size:32px;font-weight:900;margin:12px 0}
-.yellowbtn{background:#f5c518;color:black;border:none;width:100%;padding:14px;border-radius:14px;font-weight:bold;font-size:15px;margin-top:10px}
-input,select{background:#0d0e12;border:1px solid #2a2d38;color:white;padding:14px;border-radius:12px;width:100%;margin:8px 0}
-.buy{background:#f5c518;color:black;border:none;padding:14px;border-radius:12px;width:100%;font-weight:bold;margin-top:10px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#15171e;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #2a2d38}
+.yellowbtn{background:#f5c518;color:black;border:none;padding:8px 16px;border-radius:20px;font-weight:bold}
+input,select{background:#0d0e12;border:1px solid #2a2e39;color:white;padding:12px;border-radius:10px;width:100%;margin-top:10px}
+.buy{background:#f5c518;color:black;border:none;width:100%;padding:14px;border-radius:12px;font-weight:900;margin-top:12px;font-size:15px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#1a1c23;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #222}
 .nav div{text-align:center;font-size:11px;color:#8b8e99}
 .nav .active{color:#f5c518}
-.dot{width:8px;height:8px;background:#ff4444;border-radius:50%;position:absolute;top:-4px;right:-4px}
+.dot{width:8px;height:8px;background:#ff4444;border-radius:50%;display:inline-block}
+#msg{text-align:center;margin-top:10px;font-size:13px;color:#f5c518}
 </style>
 </head>
 <body>
 
 <div class="top">
-<div class="logo">🐝 DataSika <span class="badge">DEVELOPERS</span></div>
+<div class="logo">🐝 DataSika <span class="badge">BETA</span></div>
 <div>☀️</div>
 </div>
 
-<p style="color:#8b8e99;font-size:13px;line-height:18px">Your Oheneba developer console — data bundles, airtime, bills, TV, MTN AFA, result checkers & SMS, one API.</p>
-
-<div class="card">
-<div style="display:flex;justify-content:space-between"><small class="small">⏰ 1 access request under review</small><small style="color:#f5c518">View →</small></div>
-<p style="font-size:12px;color:#8b8e99;margin-top:6px">We'll email you the moment it's approved — usually within a day.</p>
-</div>
-
-<div class="card card2">
-<div style="display:flex;justify-content:space-between;align-items:center"><div class="small">💼 WALLET BALANCE</div><span class="badge" style="font-size:10px">API</span></div>
-<div class="big" id="balance">GHS 1.41</div>
-<p style="font-size:12px;color:#8b8e99">Funds every API purchase across all your keys.</p>
-<button class="yellowbtn">↗ Top up</button>
-</div>
-
-<div class="card">
-<div style="display:flex;justify-content:space-between"><span class="small">🔑 API KEYS</span><span style="color:#8b8e99;font-size:12px">Manage →</span></div>
-<div style="display:flex;gap:8px;align-items:baseline;margin:10px 0"><span class="big" id="keycount">0</span><span style="color:#8b8e99">active keys</span></div>
-<small style="color:#8b8e99">Services enabled</small><br>
-<small>None yet — request access to get started.</small>
-</div>
-
-<!-- YOUR SELLING SECTION - INSIDE THE DASHBOARD STYLE -->
-<div class="card" style="border:1px solid #f5c518">
-<div class="small" style="color:#f5c518">🚀 SELL DATA - OHENEABA DATA</div>
-<select id="network"><option>MTN</option><option>TELECEL</option><option>AT</option></select>
-<select id="bundle"><option value="1">1GB - GHS 5</option><option value="2" selected>2GB - GHS 10</option><option value="5">5GB - GHS 22</option><option value="10">10GB - GHS 42</option></select>
-<input id="phone" placeholder="Enter customer number e.g 0243914164" maxlength="10" type="tel">
-<div id="verify" style="font-size:13px;color:#f5c518;padding:6px 0"></div>
-<button class="buy" id="btn">Buy Data Now</button>
-<p id="msg" style="text-align:center;margin-top:10px;font-size:13px"></p>
-</div>
-
-<div class="card">
-<div class="small">💬 Get started in 3 steps</div>
-<p style="margin-top:10px;font-size:13px"><b style="background:#f5c518;color:black;border-radius:50%;padding:2px 7px">1</b> <u style="color:#f5c518">Request API access</u> — tell us your project & the services you
+<p style="color:#8b8e99;font-size:13px;line-height:18px">Welcome to your developer console. Manage your balance and data services
