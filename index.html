@@ -1,35 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oheneba Data - Developer Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oheneba Data - Cheap Data Bundles Ghana</title>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:#0d0e12;color:white;padding:12px;padding-bottom:80px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
-.logo{font-weight:bold;display:flex;align-items:center;gap:6px;font-size:18px}
-.badge{background:#2a2110;color:#f5c518;padding:3px 8px;border-radius:10px;font-size:11px;margin-left:8px}
-.card{background:#1a1c23;border-radius:20px;padding:18px;margin-top:14px}
-.card2{background:linear-gradient(135deg,#1a1c23,#2a2110);border:1px solid #f5c51833}
-.small{font-size:12px;color:#8b8e99;letter-spacing:0.5px}
-.big{font-size:32px;font-weight:900;margin:12px 0}
-.yellowbtn{background:#f5c518;color:black;border:none;padding:8px 16px;border-radius:20px;font-weight:bold}
-input,select{background:#0d0e12;border:1px solid #2a2e39;color:white;padding:12px;border-radius:10px;width:100%;margin-top:10px}
-.buy{background:#f5c518;color:black;border:none;width:100%;padding:14px;border-radius:12px;font-weight:900;margin-top:12px;font-size:15px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#1a1c23;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #222}
-.nav div{text-align:center;font-size:11px;color:#8b8e99}
-.nav .active{color:#f5c518}
-.dot{width:8px;height:8px;background:#ff4444;border-radius:50%;display:inline-block}
-#msg{text-align:center;margin-top:10px;font-size:13px;color:#f5c518}
+body{font-family:Arial;background:#f5f5f5;margin:0}
+.header{background:#000;color:#FFD700;padding:15px;text-align:center;font-weight:bold;font-size:20px}
+.tabs{display:flex;background:white;box-shadow:0 2px 5px #0001}
+.tab{flex:1;padding:12px;text-align:center;font-weight:bold;cursor:pointer;border-bottom:3px solid transparent}
+.tab.active{border-color:#FFD700;color:#000}
+.bundle-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.bundle{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 8px #0001}
+.bundle h3{margin:5px 0}.bundle button{background:#000;color:#FFD700;border:none;padding:10px 20px;border-radius:20px;width:100%;font-weight:bold}
+.notice{background:#fff3cd;padding:10px;margin:10px;border-radius:8px;font-size:13px}
 </style>
 </head>
 <body>
+<div class="header">OHENEBA DATA</div>
+<div class="notice">⚠️ Bonus airtime CANNOT buy data. Use MoMo or main airtime balance.</div>
 
-<div class="top">
-<div class="logo">🐝 DataSika <span class="badge">BETA</span></div>
-<div>☀️</div>
+<div class="tabs">
+<div class="tab active" onclick="showNet('mtn')">MTN</div>
+<div class="tab" onclick="showNet('telecel')">Telecel</div>
+<div class="tab" onclick="showNet('at')">AirtelTigo</div>
 </div>
 
-<p style="color:#8b8e99;font-size:13px;line-height:18px">Welcome to your developer console. Manage your balance and data services
+<div id="bundles" class="bundle-grid"></div>
+
+<script>
+const bundles = {
+ mtn: [{gb:'1GB',price:6},{gb:'2GB',price:11},{gb:'5GB',price:24},{gb:'10GB',price:42}],
+ telecel: [{gb:'5GB',price:22},{gb:'10GB',price:38},{gb:'15GB',price:55}],
+ at: [{gb:'5GB',price:22},{gb:'10GB',price:40}]
+}
+let currentNet='mtn';
+
+function showNet(net){
+ currentNet=net;
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ event.target.classList.add('active');
+ render();
+}
+function render(){
+ let html='';
+ bundles[currentNet].forEach(b=>{
+   html+=`<div class="bundle"><h3>${b.gb}</h3><p>GHS ${b.price}</p><button onclick="buy('${b.gb}',${b.price})">Buy Now</button></div>`;
+ });
+ document.getElementById('bundles').innerHTML=html;
+}
+render();
+
+function buy(gb,price){
+ let phone = prompt(`Enter ${currentNet.toUpperCase()} number to receive ${gb}:`);
+ if(!phone) return;
+ let email = prompt("Enter your email for receipt:");
+
+ let handler = PaystackPop.setup({
+   key: 'pk_live_YOUR_PUBLIC_KEY_HERE', // <- REPLACE WITH YOUR KEY
+   email: email,
+   amount: price*100,
+   currency: 'GHS',
+   metadata: {custom_fields: [{display_name:"Phone",variable_name:"phone",value:phone},{display_name:"Bundle",variable_name:"bundle",value:gb},{display_name:"Network",variable_name:"network",value:currentNet}]},
+   callback: function(response){
+     alert('Payment successful! Ref: '+response.reference+' We will send '+gb+' to '+phone+' now.');
+     // HERE you call your backend API to deliver data
+     fetch('/deliver.php', {method:'POST', body: JSON.stringify({phone,gb,network:currentNet,ref:response.reference})})
+   },
+   onClose: function(){ alert('Payment cancelled'); }
+ });
+ handler.openIframe();
+}
+</script>
+</body>
+</html>
